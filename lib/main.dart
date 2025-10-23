@@ -18,7 +18,7 @@ class ChatbotApp extends StatelessWidget {
         builder: (context, controller, _) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Chatbot RAG',
+            title: 'RAG Assistant',
             theme: ThemeData.light(),
             darkTheme: ThemeData.dark(),
             themeMode: controller.darkMode ? ThemeMode.dark : ThemeMode.light,

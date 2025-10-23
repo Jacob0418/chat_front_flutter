@@ -14,7 +14,7 @@ class ChatScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chatbot RAG"),
+        title: const Text("RAG Assistant"),
         actions: [
           IconButton(
             icon: Icon(controller.darkMode ? Icons.light_mode : Icons.dark_mode),
@@ -39,8 +39,8 @@ class ChatScreen extends StatelessWidget {
                 },
               ),
             ),
-            if (controller.loading) const TypingIndicator(),
-            InputBar(onSend: controller.sendStreaming),
+              if (controller.loading) const TypingIndicator(),
+              InputBar(onSend:  controller.sendStreaming, isLoading: controller.loading),
           ],
         ),
       ),

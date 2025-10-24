@@ -33,9 +33,15 @@ class ChatController extends ChangeNotifier {
     await prefs.setStringList('chat_history', list);
   }
 
+  void clearError() {
+    error = null;
+    notifyListeners();
+  }
+
   Future<void> send(String text) async {
     if (text.trim().isEmpty || loading) return;
 
+    error = null;
     messages.add(Message(role: 'user', content: text));
     loading = true;
     notifyListeners();
@@ -46,29 +52,39 @@ class ChatController extends ChangeNotifier {
       await _saveMessages();
     } catch (e) {
       error = e.toString();
+      messages.add(Message(role: 'assistant', content: "Error: $error"));
+      await _saveMessages();
+    } finally {
+      loading = false;
+      notifyListeners();
     }
-
-    loading = false;
-    notifyListeners();
   }
 
-  // Bonus: streaming parcial de tokens
   Future<void> sendStreaming(String text) async {
     if (text.trim().isEmpty || loading) return;
+
+    error = null;
     messages.add(Message(role: 'user', content: text));
     messages.add(Message(role: 'assistant', content: ""));
     loading = true;
     notifyListeners();
 
-    final stream = _repo.askStream(text, messages);
-    await for (final chunk in stream) {
-      messages.last = Message(role: 'assistant', content: messages.last.content + chunk);
+    try {
+      final stream = _repo.askStream(text, messages);
+      await for (final chunk in stream) {
+        messages.last =
+            Message(role: 'assistant', content: messages.last.content + chunk);
+        notifyListeners();
+      }
+      await _saveMessages();
+    } on Exception catch (e) {
+      error = e.toString();
+      messages.last = Message(role: 'assistant', content: "Error: $error");
+      await _saveMessages();
+    } finally {
+      loading = false;
       notifyListeners();
     }
-
-    loading = false;
-    await _saveMessages();
-    notifyListeners();
   }
 
   void toggleTheme() {

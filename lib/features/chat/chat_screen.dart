@@ -12,6 +12,16 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<ChatController>();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final err = controller.error;
+      if (err != null && err.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(err)),
+        );
+        controller.clearError();
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("RAG Assistant"),
@@ -39,8 +49,8 @@ class ChatScreen extends StatelessWidget {
                 },
               ),
             ),
-              if (controller.loading) const TypingIndicator(),
-              InputBar(onSend:  controller.sendStreaming, isLoading: controller.loading),
+            if (controller.loading) const TypingIndicator(),
+            InputBar(onSend: controller.sendStreaming, isLoading: controller.loading),
           ],
         ),
       ),
